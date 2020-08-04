@@ -50,6 +50,12 @@ SELECT monthly_payment, loan_end_date, starting_date, DATEADD(MONTH, 1, current_
     WHERE current_month < loan_end_date -- Terminating condition. This tells the recursive member when to stop pulling in the result sets. Without this condition along with the incrementing date in the SELECT, we would have an infinite loop.
 )
 
+-- This example uses a DATE column as it's terminating condition, but you can also use exact numeric types. Avoid using approximate numerics such as floats like the plague.
+-- The important thing to understand here is the anchor member is your base result set R[0], which is passed to the recursive member for the next iteration.
+-- Next the recursive member executes with the input result set from the previous iteration R[i-1] and returns a sub-result set R[i] until the terminating condition is met.
+-- Next, all result sets R[0], R[1], … R[n] are combined using UNION ALL operator to get the full loanCTE result set.
+
+
 -- Now that we have the loanCTE built we can write our final query to produce the desired list (Year, Month, and SUM of monthly payments for the past year).
 SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_payment) as total_montly_payments
     FROM loanCTE
@@ -57,12 +63,6 @@ SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_
     GROUP BY YEAR(current_month), MONTH(current_month) 
     ORDER BY YEAR(current_month) DESC, MONTH(current_month) DESC;
 
-
-
--- This example uses a DATE column as it's terminating condition, but you can also use exact numeric types. Avoid using approximate numerics such as floats like the plague.
--- The important thing to understand here is the anchor member is your base result set R[0], which is passed to the recursive member for the next iteration.
--- Next the recursive member executes with the input result set from the previous iteration R[i-1] and returns a sub-result set R[i] until the terminating condition is met.
--- Finally, all result sets R[0], R[1], … R[n] are combined using UNION ALL operator to get the final result set.
 
 -- Another Important note is SQL server by default only allows 100 iterations. You can increase this by setting the OPTION (MAXRECURSION 5000) at the bottom of the CTE
 -- You can set this as high as 32767, or 0 which will remove the limit altogether, but beware of using 0 as you may be creating an infinite loop.
