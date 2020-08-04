@@ -53,7 +53,7 @@ SELECT monthly_payment, loan_end_date, starting_date, DATEADD(MONTH, 1, current_
 -- This example uses a DATE column as it's terminating condition, but you can also use exact numeric types. Avoid using approximate numerics such as floats like the plague.
 -- The important thing to understand here is the anchor member is your base result set R[0], which is passed to the recursive member for the next iteration.
 -- Next the recursive member executes with the input result set from the previous iteration R[i-1] and returns a sub-result set R[i] until the terminating condition is met.
--- Next, all result sets R[0], R[1], … R[n] are combined using UNION ALL operator to get the full loanCTE result set.
+-- Then all result sets R[0], R[1], … R[n] are combined using UNION ALL operator to get the full loanCTE result set.
 
 
 -- Now that we have the loanCTE built we can write our final query to produce the desired list (Year, Month, and SUM of monthly payments for the past year).
