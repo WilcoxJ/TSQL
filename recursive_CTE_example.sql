@@ -59,7 +59,7 @@ SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_
 
 
 
--- This example uses a DATE column as it's terminating condition, but you can also use exact numeric types. Avoid using approximate numerics such as floats like the plauge.
+-- This example uses a DATE column as it's terminating condition, but you can also use exact numeric types. Avoid using approximate numerics such as floats like the plague.
 -- The important thing to understand here is the anchor member is your base result set R[0], which is passed to the recursive member for the next iteration.
 -- Next the recursive member executes with the input result set from the previous iteration R[i-1] and returns a sub-result set R[i] until the terminating condition is met.
 -- Finally, all result sets R[0], R[1], … R[n] are combined using UNION ALL operator to get the final result set.
