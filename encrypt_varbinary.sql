@@ -40,3 +40,25 @@ OPEN SYMMETRIC KEY testKey01
 
 SELECT *, Convert(varchar, (DECRYPTBYKEY(encrypted_col))) 
 FROM [dbo].[enc_test];
+
+
+--Sql Server supports the following ciphers
+
+	-- Symmetrical Encryption 
+	-- DES | Triple DES | RC2 | RC4 (deprecated) | 128-bit RC4 (deprecated) | DESX | 128-bit AES | 192-bit AES | 256-bit AES	
+
+	-- Asymmetrical Encryption
+	-- RSA_4096 | RSA_3072 | RSA_2048 | RSA_1024 | RSA_512
+	
+-- Documentations Links:
+	--Create symmetric key
+	-- https://docs.microsoft.com/en-us/sql/t-sql/statements/create-symmetric-key-transact-sql?view=sql-server-ver15
+
+	-- KEY_GUID
+	-- https://docs.microsoft.com/en-us/sql/t-sql/functions/key-guid-transact-sql?view=sql-server-ver15	
+
+	-- EncryptByKey 
+	-- https://docs.microsoft.com/en-us/sql/t-sql/functions/encryptbykey-transact-sql?view=sql-server-ver15
+
+	-- DecryptByKey 
+	-- https://docs.microsoft.com/en-us/sql/t-sql/functions/decryptbykey-transact-sql?view=sql-server-ver15	
