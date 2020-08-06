@@ -1,4 +1,5 @@
 -- Recursive CTE's Explained:
+
 -- In this example we have a table with data on several loans including the start date of the loan, loan term (how many months the loan will last), and monthly payment amount.
 -- I will demonstrate how to create a recursive CTE that will return the SUM of payments made each month for the past year.
 
@@ -36,6 +37,7 @@ VALUES
 GO
 
 
+
 -- Recursive CTE
 WITH loanCTE as 
 (
@@ -62,7 +64,6 @@ SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_
     WHERE DATEFROMPARTS(YEAR(current_month), MONTH(current_month), 1) BETWEEN GETDATE()-365 AND GETDATE() -- Notice the DATEFROMPARTS() function here uses 1 as the day parameter. This is important since current_month will often not have 1 as it's day, and if you were only to use WHERE current_month BETWEEN GETDATE()-365 AND GETDATE() the SUM of monthly payments would be incorrect.
     GROUP BY YEAR(current_month), MONTH(current_month) 
     ORDER BY YEAR(current_month) DESC, MONTH(current_month) DESC;
-
 
 -- Another Important note is SQL server by default only allows 100 iterations. You can increase this by setting the OPTION (MAXRECURSION 5000) at the bottom of the CTE
 -- You can set this as high as 32767, or 0 which will remove the limit altogether, but beware of using 0 as you may be creating an infinite loop.
