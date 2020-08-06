@@ -69,3 +69,4 @@ SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_
 -- You can set this as high as 32767, or 0 which will remove the limit altogether, but beware of using 0 as you may be creating an infinite loop.
 
 -- Link to documentation: https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15
+
