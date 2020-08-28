@@ -31,7 +31,7 @@ SET encrypted_col
     = EncryptByKey(Key_GUID('testKey01'), 'plain text test');  
 GO      
 
--- view Encrypted Column
+-- View Encrypted Column
 SELECT * FROM [dbo].[enc_test];     
 
 -- View Decrypted Column
@@ -42,7 +42,7 @@ SELECT *, Convert(varchar, (DECRYPTBYKEY(encrypted_col)))
 FROM [dbo].[enc_test];
 
 
---Sql Server supports the following ciphers
+-- SQL Server supports the following ciphers
 
 	-- Symmetrical Encryption 
 	-- DES | Triple DES | RC2 | RC4 (deprecated) | 128-bit RC4 (deprecated) | DESX | 128-bit AES | 192-bit AES | 256-bit AES	
