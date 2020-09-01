@@ -35,7 +35,6 @@ GO
 
 
 
-
 -- CTE
 WITH mortCTE as 
 (
@@ -47,7 +46,8 @@ SELECT 0 as pmtNo,
     CONVERT(decimal(19,5), pmt_amount - (loan_amount*(interest_rate) / 12)) as principle, 
     CONVERT(decimal(19,5), loan_amount *(CONVERT(decimal(19,5), interest_rate) / 12)) as interest, 
     loan_amount as endingBalance, 
-    interest_rate
+    interest_rate,
+	CONVERT(decimal(19,5), 0) as cumulativeInterest
 FROM [dbo].[mortgage]
 UNION ALL
 -- recursive
@@ -56,9 +56,10 @@ SELECT pmtNo + 1 as pmtNo,
 	ROUND(endingBalance, 2) as begBalance, 
     pmt_amount, 
 	CONVERT(decimal(19,5), (pmt_amount - ROUND(CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)), 2))) as principle,  
-	CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)) as interest, 
+	ROUND(CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)), 2) as interest, 
 	CONVERT(decimal(19,5), endingBalance - CONVERT(decimal(19,5), (pmt_amount - ROUND(CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)), 2)))) as endingBalance, 
-	interest_rate
+	interest_rate,
+	ROUND(CONVERT(decimal(19,5), CONVERT(decimal(19,5), cumulativeInterest) + CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12))), 2)
 FROM mortCTE
 WHERE endingBalance > 0 -- terminating condition
 
@@ -71,7 +72,9 @@ SELECT pmtNo,
     principle as Principle, 
     interest as interest, 
     endingBalance as endingBalance, 
-    interest_rate
+    interest_rate,
+	cumulativeInterest
 FROM mortCTE
 WHERE pmtNo > 0
-OPTION (MAXRECURSION 360)
+OPTION (MAXRECURSION 360) 
+
