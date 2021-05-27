@@ -10,7 +10,7 @@ GO
 
 -- Create KEY
 CREATE SYMMETRIC KEY testKey01   
-WITH ALGORITHM = AES_256  -- I'm using AES256, but you can use whichever algorithm you prefer. Link to docs: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/data-encryption-in-sql-server#:~:text=SQL%20Server%20supports%20several%20symmetric,using%20the%20Windows%20Crypto%20API.
+WITH ALGORITHM = AES_256
 ENCRYPTION BY CERTIFICATE testCert01;  
 GO
 
