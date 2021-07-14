@@ -38,7 +38,7 @@ GO
 -- CTE
 WITH mortCTE as 
 (
--- anchor
+-- anchor member
 SELECT 0 as pmtNo, 
     starting_date as pmtDate, 
     loan_amount as begBalance, 
@@ -50,7 +50,7 @@ SELECT 0 as pmtNo,
 	CONVERT(decimal(19,5), 0) as cumulativeInterest
 FROM [dbo].[mortgage]
 UNION ALL
--- recursive
+-- recursive member
 SELECT pmtNo + 1 as pmtNo,
 	DATEADD(MONTH, 1, pmtDate) as pmtDate, 
 	ROUND(endingBalance, 2) as begBalance, 
