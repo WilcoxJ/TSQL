@@ -1,5 +1,5 @@
 # TSQL
-This repo holds useful methods, examples, and proofs of concept using Microsoft SQL Server's flavor of SQL
+Microsoft Transact SQL examples and methods.
 
  ## Author
  * **Josh Wilcox**
