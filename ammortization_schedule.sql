@@ -61,7 +61,7 @@ SELECT pmtNo + 1 as pmtNo,
 	interest_rate,
 	ROUND(CONVERT(decimal(19,5), CONVERT(decimal(19,5), cumulativeInterest) + CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12))), 2)
 FROM mortCTE
-WHERE endingBalance > 0 -- terminating condition
+WHERE endingBalance > 0
 
 )
 
