@@ -43,12 +43,11 @@ WITH loanCTE as
 -- Anchor Member 
 SELECT monthly_payment, DATEADD(MONTH, loan_term, starting_date) as loan_end_date, starting_date, starting_date as current_month
     FROM loan
-    -- The anchor member must pull from an exisitng table or view, and will be the base result set R[0] that is passed to the recursive member.
 UNION ALL
 -- Recursive Member 
-SELECT monthly_payment, loan_end_date, starting_date, DATEADD(MONTH, 1, current_month) -- incrementing the current_month each time the next result set R[1], R[2],...R[n] is passed to the recursive member. This is crucial to our terminating condition
-    FROM loanCTE -- Notice the FROM loanCTE. This is the self-referential (hence recursive) part of the CTE.
-    WHERE current_month < loan_end_date -- Terminating condition. This tells the recursive member when to stop pulling in the result sets.
+SELECT monthly_payment, loan_end_date, starting_date, DATEADD(MONTH, 1, current_month)
+    FROM loanCTE
+    WHERE current_month < loan_end_date 
 )
 
 SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_payment) as total_montly_payments
@@ -57,7 +56,7 @@ SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_
     GROUP BY YEAR(current_month), MONTH(current_month) 
     ORDER BY YEAR(current_month) DESC, MONTH(current_month) DESC;
 
--- Another Important note is SQL server by default only allows 100 iterations. You can increase this by setting the OPTION (MAXRECURSION 5000) at the bottom of the CTE
+-- SQL server by default only allows 100 iterations. You can increase this by setting the OPTION (MAXRECURSION 5000) at the bottom of the CTE
 -- You can set this as high as 32767, or 0 which will remove the limit altogether (beware infinite loop!)
 
 -- Link to documentation: https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15
