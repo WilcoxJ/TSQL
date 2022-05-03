@@ -1,5 +1,5 @@
--- Create master key pw
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = '3aog57q15d4Ldsase445wsd4f'  
+-- Create master key pw (if you don't already have one)
+-- CREATE MASTER KEY ENCRYPTION BY PASSWORD = '<pw>'  
 
 -- Create PW protected cert
 CREATE CERTIFICATE testCert01
