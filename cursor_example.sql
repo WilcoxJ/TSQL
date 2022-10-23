@@ -9,8 +9,8 @@ BEGIN
 
 	-- vars from select
 	DECLARE 
-    @userID VARCHAR(10),
-    @role   VARCHAR(50);
+	@userID VARCHAR(10),
+	@role   VARCHAR(50);
 
 	-- select result set
 	DECLARE cursor_user CURSOR
