@@ -1,82 +1,54 @@
--- This is an example of how to create an ammortization schedule for a 30 year fixed mortgage loan using a recursive CTE.
+-- Drop table if exists
+DROP TABLE IF EXISTS dbo.AmortizationSchedule;
 
+CREATE TABLE dbo.AmortizationSchedule (
+    PaymentNumber INT,
+    PaymentDate DATE,
+    BeginningBalance DECIMAL(18, 2),
+    MonthlyPayment DECIMAL(18, 2),
+    Interest DECIMAL(18, 2),
+    Principal DECIMAL(18, 2),
+    EndingBalance DECIMAL(18, 2)
+);
 
-SET ANSI_NULLS ON
-GO
+DECLARE @LoanAmount DECIMAL(18, 2) = 250000.00; -- Loan amount
+DECLARE @AnnualInterestRate DECIMAL(5, 3) = 3.275; -- Annual interest rate
+DECLARE @LoanTermYears INT = 30; -- Loan term in years
 
-SET QUOTED_IDENTIFIER ON
-GO
+-- Calculate monthly interest rate and number of payments
+DECLARE @MonthlyInterestRate DECIMAL(18, 6) = @AnnualInterestRate / 1200.0;
+DECLARE @NumberOfPayments INT = @LoanTermYears * 12;
+DECLARE @MonthlyPayment DECIMAL(18, 2);
 
-CREATE TABLE [dbo].[mortgage](
-	[id] [int] IDENTITY(1,1) NOT NULL,
-	[starting_date] [date] NULL,
-	[loan_term] [int] NULL,
-	[interest_rate] [decimal](19, 5) NULL,
-	[loan_amount] [decimal](19, 5) NULL,
-	[pmt_amount] [decimal](19, 5) NULL
-) ON [PRIMARY]
-GO
+-- Calculate monthly payment using the PMT function
+SET @MonthlyPayment = (@LoanAmount * @MonthlyInterestRate) / (1 - POWER(1 + @MonthlyInterestRate, -@NumberOfPayments));
 
-
--- Insert your value(s)
--- INSERT INTO [dbo].[mortgage]
-        --    ([starting_date]
-        --    ,[loan_term]
-        --    ,[interest_rate]
-        --    ,[loan_amount]
-        --    ,[pmt_amount])
-    --  VALUES
-        --    (<starting_date, date,>
-        --    ,<loan_term, int,>
-        --    ,<interest_rate, decimal(19,5),>
-        --    ,<loan_amount, decimal(19,5),>
-        --    ,<pmt_amount, decimal(19,5),>)
--- GO
-
-
-
-WITH mortCTE AS 
-(
-    -- anchor member
-    SELECT 
-        0 AS pmtNo, 
-        starting_date AS pmtDate, 
-        loan_amount AS begBalance, 
-        pmt_amount, 
-        loan_amount * (interest_rate / 12) AS interest,
-        pmt_amount - loan_amount * (interest_rate / 12) AS principle,
-        loan_amount - (pmt_amount - loan_amount * (interest_rate / 12)) AS endingBalance,
-        interest_rate,
-        CONVERT(decimal(19,5), 0) AS cumulativeInterest
-    FROM [dbo].[mortgage]
+WITH AmortizationCTE AS (
+    SELECT
+        1 AS PaymentNumber,
+        DATEADD(MONTH, 1, GETDATE()) AS PaymentDate,
+        CAST(@LoanAmount AS DECIMAL(18, 2)) AS BeginningBalance,
+        @MonthlyPayment AS MonthlyPayment,
+        CAST(@LoanAmount * @MonthlyInterestRate AS DECIMAL(18, 2)) AS Interest,
+        CAST(@MonthlyPayment - (@LoanAmount * @MonthlyInterestRate) AS DECIMAL(18, 2)) AS Principal,
+        CAST(@LoanAmount - (@MonthlyPayment - (@LoanAmount * @MonthlyInterestRate)) AS DECIMAL(18, 2)) AS EndingBalance
 
     UNION ALL
 
-    -- recursive member
-    SELECT 
-        pmtNo + 1 AS pmtNo,
-        DATEADD(MONTH, 1, pmtDate) AS pmtDate, 
-        ROUND(endingBalance, 2) AS begBalance, 
-        pmt_amount, 
-        endingBalance * (interest_rate / 12) AS interest,
-        pmt_amount - endingBalance * (interest_rate / 12) AS principle,
-        endingBalance - (pmt_amount - endingBalance * (interest_rate / 12)) AS endingBalance,
-        interest_rate,
-        ROUND(cumulativeInterest + endingBalance * (interest_rate / 12), 2) AS cumulativeInterest
-    FROM mortCTE
-    WHERE endingBalance > 0
+    SELECT
+        PaymentNumber + 1,
+        DATEADD(MONTH, 1, PaymentDate),
+        CAST(EndingBalance AS DECIMAL(18, 2)),
+        @MonthlyPayment,
+        CAST(EndingBalance * @MonthlyInterestRate AS DECIMAL(18, 2)),
+        CAST(@MonthlyPayment - (EndingBalance * @MonthlyInterestRate) AS DECIMAL(18, 2)),
+        CAST(EndingBalance - (@MonthlyPayment - (EndingBalance * @MonthlyInterestRate)) AS DECIMAL(18, 2))
+    FROM
+        AmortizationCTE
+    WHERE
+        PaymentNumber < @NumberOfPayments
 )
 
-SELECT pmtNo, 
-    pmtDate, 
-    begBalance as begBalance, 
-    pmt_amount as pmtAmount, 
-    principle as Principle, 
-    interest as interest, 
-    endingBalance as endingBalance, 
-    interest_rate,
-    cumulativeInterest
-FROM mortCTE
-WHERE pmtNo > 0
-OPTION (MAXRECURSION 360) 
-
+SELECT * 
+FROM AmortizationCTE
+OPTION(MAXRECURSION 1000);
