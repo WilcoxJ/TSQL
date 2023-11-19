@@ -55,9 +55,3 @@ SELECT YEAR(current_month) as Year, MONTH(current_month) as Month,  SUM(monthly_
     WHERE DATEFROMPARTS(YEAR(current_month), MONTH(current_month), 1) BETWEEN GETDATE()-365 AND GETDATE()
     GROUP BY YEAR(current_month), MONTH(current_month) 
     ORDER BY YEAR(current_month) DESC, MONTH(current_month) DESC;
-
--- SQL server by default only allows 100 iterations. You can increase this by setting the OPTION (MAXRECURSION 5000) at the bottom of the CTE
--- You can set this as high as 32767, or 0 which will remove the limit altogether (beware infinite loop!)
-
--- Link to documentation: https://docs.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15
-
