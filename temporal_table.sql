@@ -44,15 +44,15 @@ VALUES
 
 UPDATE dbo.UserAssignment
 SET Amount = 6000.00
-WHERE UserID = 1 AND ProjectID = 1;
+WHERE AssignmentID = 1;
 
 UPDATE dbo.UserAssignment
 SET Amount = 9000.00
-WHERE UserID = 2 AND ProjectID = 2;
+WHERE AssignmentID = 2;
 
 UPDATE dbo.UserAssignment
 SET Amount = 6800.00
-WHERE UserID = 3 AND ProjectID = 2;
+WHERE AssignmentID = 3;
 
 INSERT INTO dbo.UserAssignment (UserID, ProjectID, Amount)
 VALUES 
