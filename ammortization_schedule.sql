@@ -35,34 +35,36 @@ GO
 
 
 
--- CTE
-WITH mortCTE as 
+WITH mortCTE AS 
 (
--- anchor member
-SELECT 0 as pmtNo, 
-    starting_date as pmtDate, 
-    loan_amount as begBalance, 
-    pmt_amount, 
-    CONVERT(decimal(19,5), pmt_amount - (loan_amount*(interest_rate) / 12)) as principle, 
-    CONVERT(decimal(19,5), loan_amount *(CONVERT(decimal(19,5), interest_rate) / 12)) as interest, 
-    loan_amount as endingBalance, 
-    interest_rate,
-	CONVERT(decimal(19,5), 0) as cumulativeInterest
-FROM [dbo].[mortgage]
-UNION ALL
--- recursive member
-SELECT pmtNo + 1 as pmtNo,
-	DATEADD(MONTH, 1, pmtDate) as pmtDate, 
-	ROUND(endingBalance, 2) as begBalance, 
-    pmt_amount, 
-	CONVERT(decimal(19,5), (pmt_amount - ROUND(CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)), 2))) as principle,  
-	ROUND(CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)), 2) as interest, 
-	CONVERT(decimal(19,5), endingBalance - CONVERT(decimal(19,5), (pmt_amount - ROUND(CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12)), 2)))) as endingBalance, 
-	interest_rate,
-	ROUND(CONVERT(decimal(19,5), CONVERT(decimal(19,5), cumulativeInterest) + CONVERT(decimal(19,5), endingBalance*(CONVERT(decimal(19,5), interest_rate) / 12))), 2)
-FROM mortCTE
-WHERE endingBalance > 0
+    -- anchor member
+    SELECT 
+        0 AS pmtNo, 
+        starting_date AS pmtDate, 
+        loan_amount AS begBalance, 
+        pmt_amount, 
+        loan_amount * (interest_rate / 12) AS interest,
+        pmt_amount - loan_amount * (interest_rate / 12) AS principle,
+        loan_amount - (pmt_amount - loan_amount * (interest_rate / 12)) AS endingBalance,
+        interest_rate,
+        CONVERT(decimal(19,5), 0) AS cumulativeInterest
+    FROM [dbo].[mortgage]
 
+    UNION ALL
+
+    -- recursive member
+    SELECT 
+        pmtNo + 1 AS pmtNo,
+        DATEADD(MONTH, 1, pmtDate) AS pmtDate, 
+        ROUND(endingBalance, 2) AS begBalance, 
+        pmt_amount, 
+        endingBalance * (interest_rate / 12) AS interest,
+        pmt_amount - endingBalance * (interest_rate / 12) AS principle,
+        endingBalance - (pmt_amount - endingBalance * (interest_rate / 12)) AS endingBalance,
+        interest_rate,
+        ROUND(cumulativeInterest + endingBalance * (interest_rate / 12), 2) AS cumulativeInterest
+    FROM mortCTE
+    WHERE endingBalance > 0
 )
 
 SELECT pmtNo, 
@@ -73,7 +75,7 @@ SELECT pmtNo,
     interest as interest, 
     endingBalance as endingBalance, 
     interest_rate,
-	cumulativeInterest
+    cumulativeInterest
 FROM mortCTE
 WHERE pmtNo > 0
 OPTION (MAXRECURSION 360) 
